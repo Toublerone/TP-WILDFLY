@@ -1,0 +1,64 @@
+#TP WILDFLY GUEQUIERE
+
+- name: Mise en place de Wildfly
+  hosts: WILDFLY-CONTAINER
+  remote_user: thomas
+  sudo: yes
+
+  tasks:
+     - name: Installation du SDK 8
+       package:
+         name: openjdk-8-jdk-headless
+         state: present 
+
+     - name: Création de l'utilisateur Wildfly
+       user: 
+         name: wildfly 
+         shell: '/usr/bin/bash'
+
+     - name: Création du répertoire wildfly
+       file: 
+         path: '/home/thomas/wildfly'
+         owner: 'wildfly'
+         state: directory
+         recurse: yes
+       file: 
+         path: '/home/thomas/wildfly/unarchive'
+         owner: 'wildfly'
+         state: directory
+         recurse: yes
+
+     - name: Téléchargement de l'archive
+       get_url:
+         url: 'http://download.jboss.org/wildfly/11.0.0.Final/wildfly-11.0.0.Final.tar.gz'
+         dest: '/home/thomas/wildfly/' 
+
+     - name: Extraction de l'archive 
+       unarchive: 
+         src: '/home/thomas/wildfly/download/wildfly-11.0.0.Final.tr.gz'
+         dest: '/home/thomas/wildfly/unarchive/' 
+         remote_src: yes
+        
+     - name: Création du répertoire /etc/wildfly
+       file: 
+         path: '/etc/wildfly'
+         owner: 'wildfly'
+         state: directory
+         recurse: yes
+
+     - name: Copie du fichier wildfly.conf
+       copy: 
+         src: '/home/thomas/wildfly/unarchive/docs/contrib/scripts/systemd/wildfly.conf' 
+         dest: '/etc/wildfly/'
+         owner: 'wildfly'
+
+     - name: Copie du fichier wildfly.service
+       copy: 
+         src: '/home/thomas/wildfly/unarchive/docs/contrib/systemd/wildfly.service' 
+         dest: '/etc/systemd/system/'
+         owner: 'wildfly'
+
+     - name: Copie du fichier launch.sh
+       copy: 
+         src: '/home/thomas/wildfly/unarchive/docs/contrib/scripts/systemd/launch.sh' 
+         dest: '/opt/wildfly/bin'
